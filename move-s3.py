@@ -8,7 +8,7 @@ s3 = boto3.client('s3')
 bucket_name = "ippei-com-media-backup"
 
 # Prefix for testing a single folder
-prefix = "wp-content/uploads/"  # Target a specific folder for testing
+prefix = "wp-content/uploads/2023/"  # Target a specific folder for testing
 
 def move_files(bucket_name, prefix):
     paginator = s3.get_paginator('list_objects_v2')
@@ -22,12 +22,12 @@ def move_files(bucket_name, prefix):
                 old_key = obj['Key']
                 
                 # Match files inside a version-number subfolder
-                match = re.match(rf"({prefix})[^/]+/([^/]+)", old_key)
+                match = re.match(rf"({prefix}\d{{2}})/\d+/([^/]+)", old_key)
                 if not match:
                     continue
                 
                 # Extract new target path without the version number
-                new_key = f"{match.group(1)}{match.group(2)}"
+                new_key = f"{match.group(1)}/{match.group(2)}"
 
                 # Check if the file already exists in the new location
                 existing_objects = s3.list_objects_v2(Bucket=bucket_name, Prefix=new_key)
